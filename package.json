@@ -5,15 +5,31 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "test"
+    "test": "jest --config jestconfig.json",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "prepare" : "npm run build",
+    "prepublishOnly" : "npm test && npm run lint",
+    "preversion" : "npm run lint",
+    "version" : "npm run format && git add -A src",
+    "postversion" : "git push && git push --tags"
   },
   "author": "Giovanni Abeni",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^25.2.3",
+    "jest": "^26.0.1",
+    "prettier": "^2.0.5",
+    "ts-jest": "^26.0.0",
+    "tslint": "^6.1.2",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.9.3"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/giabeni/commit-reveal-sandbox.git"
-  }
+  },
+  "files": [
+    "lib/**/*"
+  ]
 }
