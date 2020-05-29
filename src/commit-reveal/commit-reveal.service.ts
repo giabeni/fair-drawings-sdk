@@ -27,13 +27,11 @@ export class CommitRevealService {
   }
 
   static validateReveal(reveal: Reveal, commit: Commit) {
-    return CommitRevealService.encrypt(reveal.data, reveal.nonce, commit.hashFunction) === commit.digest;
+    return CommitRevealService.encrypt(reveal.data, reveal.nonce, commit.hashFunction) === commit.digest && reveal.userToken === commit.userToken;
   }
 
   static checkCommitFormat(commit: Commit) {
-    const digestLength = (new TextEncoder().encode(commit.digest)).length * 8; // size of the string in bits
-
-    return !!commit.digest && !!commit.hashFunction && digestLength === CommitRevealService.getHashDigestLength(commit.hashFunction);
+    return !!commit.digest && !!commit.hashFunction && commit.digest.length === CommitRevealService.getHashDigestLength(commit.hashFunction);
   }
 
   static getRandomNonce() {
@@ -66,16 +64,16 @@ export class CommitRevealService {
   private static getHashDigestLength(hashFunction = HashOptions.SHA_256) {
     switch (hashFunction) {
       case HashOptions.SHA_256:
-        return 256;
+        return 256/4;
 
       case HashOptions.SHA_224:
-        return 224;
+        return 224/4;
 
       case HashOptions.SHA_384:
-        return 384;
+        return 384/4;
       
       case HashOptions.SHA_512:
-        return 512;
+        return 512/4;
     
       default:
         throw new Error('Hash function not supported.');
