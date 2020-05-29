@@ -1,0 +1,19 @@
+{
+  "name": "commit-reveal-sandbox",
+  "version": "0.0.0",
+  "description": "A testing package for Commit-Reveal Randomizer application",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "test"
+  },
+  "author": "Giovanni Abeni",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giabeni/commit-reveal-sandbox.git"
+  }
+}
