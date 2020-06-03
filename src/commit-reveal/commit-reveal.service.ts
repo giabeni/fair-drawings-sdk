@@ -10,7 +10,7 @@ import { Reveal } from "./interfaces/reveal.interface";
  */
 export class CommitRevealService {
 
-  static createCommit(raw: RawCommit, hashFunction: HashOptions = HashOptions.SHA_256): Commit {
+  public static createCommit(raw: RawCommit, hashFunction: HashOptions = HashOptions.SHA_256): Commit {
     return {
       digest: CommitRevealService.encrypt(raw.data, raw.nonce, hashFunction),
       timestamp: (new Date()).getTime(), 
@@ -19,22 +19,22 @@ export class CommitRevealService {
     };
   }
 
-  static createReveal(reveal: RawCommit): Reveal {
+  public static createReveal(reveal: RawCommit): Reveal {
     return {
       ...reveal,
       timestamp: (new Date()).getTime(), 
     }
   }
 
-  static validateReveal(reveal: Reveal, commit: Commit) {
+  public static validateReveal(reveal: Reveal, commit: Commit) {
     return CommitRevealService.encrypt(reveal.data, reveal.nonce, commit.hashFunction) === commit.digest && reveal.userToken === commit.userToken;
   }
 
-  static checkCommitFormat(commit: Commit) {
+  public static checkCommitFormat(commit: Commit) {
     return !!commit.digest && !!commit.hashFunction && commit.digest.length === CommitRevealService.getHashDigestLength(commit.hashFunction);
   }
 
-  static getRandomNonce() {
+  public static getRandomNonce() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
