@@ -5,6 +5,8 @@ import * as Sha512 from "js-sha512";
 import { Commit } from './interfaces/commit.interface';
 import { Reveal } from "./interfaces/reveal.interface";
 
+export const DIGEST_DELIMITER = '_';
+
 /**
  * Static class to handle commits and reveals
  */
@@ -12,7 +14,7 @@ export class CommitRevealService {
 
   public static createCommit(raw: RawCommit, hashFunction: HashOptions = HashOptions.SHA_256): Commit {
     return {
-      digest: CommitRevealService.encrypt(raw.data, raw.nonce, hashFunction),
+      digest: CommitRevealService.encrypt(raw.data, raw.nonce, raw.metadata, hashFunction),
       timestamp: (new Date()).getTime(), 
       hashFunction,
       userToken: raw.userToken,
@@ -27,7 +29,7 @@ export class CommitRevealService {
   }
 
   public static validateReveal(reveal: Reveal, commit: Commit) {
-    return CommitRevealService.encrypt(reveal.data, reveal.nonce, commit.hashFunction) === commit.digest && reveal.userToken === commit.userToken;
+    return CommitRevealService.encrypt(reveal.data, reveal.nonce, reveal.metadata, commit.hashFunction) === commit.digest && reveal.userToken === commit.userToken;
   }
 
   public static checkCommitFormat(commit: Commit) {
@@ -38,8 +40,17 @@ export class CommitRevealService {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
-  private static encrypt(data: string, nonce: string, hashFunction = HashOptions.SHA_256) {
-    return CommitRevealService.hash(data + '_' + nonce, hashFunction);
+  private static encrypt(data: string, nonce: string, metadata?: any, hashFunction = HashOptions.SHA_256) {
+    if (metadata) {
+      try {
+        metadata = JSON.stringify(metadata);
+      } catch(e) {
+        throw new Error('ERR_STRINGIFY_METADATA: Could not format metadata as string to encrypt');
+      }
+    } else {
+      metadata = '';
+    }
+    return CommitRevealService.hash(data + DIGEST_DELIMITER + nonce + DIGEST_DELIMITER + metadata , hashFunction);
   }
 
   private static hash(data: string, hashFunction = HashOptions.SHA_256) {

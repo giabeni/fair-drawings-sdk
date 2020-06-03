@@ -6,6 +6,9 @@ const rawCommit: RawCommit = {
   data: '7',
   nonce: '1234567890',
   userToken: 'giovanni',
+  metadata: {
+    draw: 'D1'
+  },
 };
 
 const commit = CommitRevealService.createCommit(rawCommit, HashOptions.SHA_256);
@@ -16,18 +19,36 @@ const incorrectDataReveal = CommitRevealService.createReveal({
   data: '10',
   nonce: '1234567890',
   userToken: 'giovanni',
+  metadata: {
+    draw: 'D1'
+  },
 });
 
 const incorrectNonceReveal = CommitRevealService.createReveal({
   data: '7',
   nonce: '0987654321',
   userToken: 'giovanni',
+  metadata: {
+    draw: 'D1'
+  },
 });
 
 const incorrectTokenReveal = CommitRevealService.createReveal({
   data: '7',
   nonce: '1234567890',
   userToken: 'joao',
+  metadata: {
+    draw: 'D1'
+  },
+});
+
+const incorrectMetadataReveal = CommitRevealService.createReveal({
+  data: '7',
+  nonce: '1234567890',
+  userToken: 'giovanni',
+  metadata: {
+    draw: 'D2'
+  },
 });
 
 
@@ -42,7 +63,7 @@ test('Create commit', () => {
     userToken: 'giovanni',
   }))
   .toBe(JSON.stringify({
-    digest: '25461cdcb296f0320f82a265d7b80d50142c492415d32ab70080c79a98cb628d',
+    digest: '6dedee6752ad46b9fe70fddb7bb8600578455d32febd81e3996780029aad7b33',
     hashFunction: 256,
     userToken: 'giovanni',
   }));
@@ -74,6 +95,12 @@ test('Validating incorrect nonce reveal', () => {
 test('Validating incorrect token reveal', () => {
   expect(
     CommitRevealService.validateReveal(incorrectTokenReveal, commit)
+  ).toBe(false);
+});
+
+test('Validating incorrect metadata reveal', () => {
+  expect(
+    CommitRevealService.validateReveal(incorrectMetadataReveal, commit)
   ).toBe(false);
 });
 
