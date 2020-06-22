@@ -33,7 +33,7 @@ export class CommitRevealService {
   }
 
   public static checkCommitFormat(commit: Commit) {
-    return !!commit.digest && !!commit.hashFunction && commit.digest.length === CommitRevealService.getHashDigestLength(commit.hashFunction);
+    return !!commit.digest && !!commit.hashFunction && commit.digest.byteLength === CommitRevealService.getHashDigestLength(commit.hashFunction);
   }
 
   public static getRandomNonce() {
@@ -56,16 +56,16 @@ export class CommitRevealService {
   private static hash(data: string, hashFunction = HashOptions.SHA_256) {
     switch (hashFunction) {
       case HashOptions.SHA_256:
-        return Sha256.sha256(data);
+        return Sha256.sha256.create().update(data).arrayBuffer();
 
       case HashOptions.SHA_224:
-        return Sha256.sha224(data);
+        return Sha256.sha224.create().update(data).arrayBuffer();
 
       case HashOptions.SHA_384:
-        return Sha512.sha384(data);
+        return Sha512.sha384.create().update(data).arrayBuffer();
       
       case HashOptions.SHA_512:
-        return Sha512.sha512(data);
+        return Sha512.sha512.create().update(data).arrayBuffer();
     
       default:
         throw new Error('Hash function not supported.');
@@ -75,16 +75,16 @@ export class CommitRevealService {
   private static getHashDigestLength(hashFunction = HashOptions.SHA_256) {
     switch (hashFunction) {
       case HashOptions.SHA_256:
-        return 256/4;
+        return Sha256.sha256.create().update('').arrayBuffer().byteLength;
 
       case HashOptions.SHA_224:
-        return 224/4;
+        return Sha256.sha224.create().update('').arrayBuffer().byteLength;
 
       case HashOptions.SHA_384:
-        return 384/4;
+        return Sha512.sha384.create().update('').arrayBuffer().byteLength;
       
       case HashOptions.SHA_512:
-        return 512/4;
+        return Sha512.sha512.create().update('').arrayBuffer().byteLength;
     
       default:
         throw new Error('Hash function not supported.');

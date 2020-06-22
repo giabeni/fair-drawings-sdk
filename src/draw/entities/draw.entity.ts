@@ -1,27 +1,78 @@
 import { Stakeholder } from "./stakeholder.entity";
 import { DrawStatus } from "../enums/draw-status.enum";
+import { DrawData } from "../interfaces/draw-data.interface";
+import { SecurityService } from "../../security/security.service";
 
-export class Draw<D = any> {
+export class Draw<D = DrawData> {
 
     /**
      * Unique identifier of a draw
      */
-    uuid?: string;
+    public readonly uuid?: string;
 
     /**
      * Additional information related to the draw.
      * Using the D generic type (default is any);
      */
-    data?: D;
+    public readonly data?: D;
 
     /**
      * List of participants that can contribute to the draw.
      * Not all of them must be elegible to be drawn.
      */
-    stakeholders?: Stakeholder[];
+    public readonly stakeholders: Stakeholder[];
 
     /**
      * Current phase of draw.
      */
-    status?: DrawStatus;
+    public readonly status?: DrawStatus;
+
+    /**
+     * Get only the elegible stakeholders.
+     */
+    public get candidates() {
+        return this.stakeholders?.filter((stakeholder) => stakeholder.eligible);
+    }
+
+    constructor (stakeholders: Stakeholder[] = [], data?: D) {
+      this.stakeholders = stakeholders.map(s => new Stakeholder(s)); // asures all stakeholders are initiated
+      this.data = data;
+      this.uuid = SecurityService.getRandomString();
+    }
+
+    /**
+     * Register a new stakeholder in the Draw.
+     * @param stakeholder the Stakeholder instance.
+     * @param elegible wether force stakeholder's elegibility in the draw
+     */
+    public addStakeholder(stakeholder: Stakeholder, elegible?: boolean) {
+      if (elegible !== undefined && elegible !== null) {
+        stakeholder.eligible = elegible;
+      }
+      this.stakeholders.push(stakeholder);
+    }
+
+    /**
+     * Removes a stakeholder from the Draw.
+     * @param stakeholder the Stakeholder instance.
+     */
+    public removeStakeholder(stakeholder: Stakeholder | string) {
+      let foundIndex: number;
+      if (typeof stakeholder === 'string') {
+        foundIndex = this.stakeholders.findIndex(stkholder => stkholder.id === stakeholder);
+      } else {
+        foundIndex = this.stakeholders.findIndex(stkholder => stkholder.id === stakeholder.id);
+      }
+
+      if (foundIndex === -1) {
+        throw new Error('ERR_REMOVE_STKHOLDER: Id not found at stakeholders list');
+      }
+
+      return this.stakeholders.splice(foundIndex, 1);    
+    }
+
+
+
+
+
 }

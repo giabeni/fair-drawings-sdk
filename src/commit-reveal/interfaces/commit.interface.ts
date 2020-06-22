@@ -7,7 +7,7 @@ export interface Commit {
   /**
    * The value resulted from the hash function + nonce
    */
-  digest: string;
+  digest: ArrayBuffer;
 
   /**
    * The timestamp when the commit was CREATED
