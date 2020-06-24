@@ -38,18 +38,36 @@ export class Draw<D = DrawData> {
       this.stakeholders = stakeholders.map(s => new Stakeholder(s)); // asures all stakeholders are initiated
       this.data = data;
       this.uuid = SecurityService.getRandomString();
+      this.status = DrawStatus.PENDING;
     }
 
     /**
      * Register a new stakeholder in the Draw.
+     * If stakeholder is already added, then, updates its information.
      * @param stakeholder the Stakeholder instance.
      * @param elegible wether force stakeholder's elegibility in the draw
      */
-    public addStakeholder(stakeholder: Stakeholder, elegible?: boolean) {
-      if (elegible !== undefined && elegible !== null) {
-        stakeholder.eligible = elegible;
+    public addStakeholder(stakeholder: Stakeholder, eligible?: boolean) {
+      const existentStakeholder = this.stakeholders.find(stkholder => stkholder.id === stakeholder.id);
+      if (eligible !== undefined && eligible !== null) {
+        stakeholder.eligible = eligible;
       }
-      this.stakeholders.push(stakeholder);
+      if (existentStakeholder) {
+        Object.assign(existentStakeholder, stakeholder);
+      } else {
+        this.stakeholders.push(stakeholder);
+      }
+    }
+
+    /**
+     * Register new stakeholders in the Draw.
+     * @param stakeholders the Stakeholder array instance.
+     * @param elegible wether force stakeholder's elegibility in the draw
+     */
+    public addStakeholders(stakeholders: Stakeholder[], eligible?: boolean) {
+      for (const stakeholder of stakeholders) {
+        this.addStakeholder(stakeholder, eligible);
+      }
     }
 
     /**
