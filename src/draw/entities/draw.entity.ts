@@ -2,6 +2,7 @@ import { Stakeholder } from './stakeholder.entity';
 import { DrawStatus } from '../enums/draw-status.enum';
 import { DrawData } from '../interfaces/draw-data.interface';
 import { SecurityService } from '../../security/security.service';
+import { Commit } from '../../commit-reveal/interfaces/commit.interface';
 
 export class Draw<D = DrawData> {
   /**
@@ -16,10 +17,20 @@ export class Draw<D = DrawData> {
   public readonly data?: D;
 
   /**
+   * The number of candidates required to automatically start the draw.
+   */
+  public candidatesCount = 4;
+
+  /**
    * List of participants that can contribute to the draw.
    * Not all of them must be elegible to be drawn.
    */
   public readonly stakeholders: Stakeholder[];
+
+  /**
+   * List of all commits registered in the draw
+   */
+  public readonly commits: Commit[] = [];
 
   /**
    * Current phase of draw.
@@ -86,5 +97,13 @@ export class Draw<D = DrawData> {
     }
 
     return this.stakeholders.splice(foundIndex, 1);
+  }
+
+  /**
+   * Saves a new commit to the draw proccess
+   * @param commit the encrypted commit object
+   */
+  public registerCommit(commit: Commit) {
+    this.registerCommit(commit);
   }
 }
