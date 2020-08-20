@@ -7,35 +7,84 @@ import { Commit } from '../commit-reveal/interfaces/commit.interface';
 import * as crypto from 'crypto';
 import { Reveal } from '../commit-reveal/interfaces/reveal.interface';
 import { RawCommit } from '../../lib/commit-reveal/interfaces/raw-commit.interface';
+import { Communicator } from './communicators/communicator.service';
+import { PaginationResponse } from './interfaces/pagination-response.inteface';
+import { DrawEventType } from './enums/draw-event-type.enum';
 /**
  * Static class to handle actions for Draws
  */
 export class DrawService<D = DrawData> {
-  public static createDraw(drawData: DrawData, stakeholders?: Stakeholder[]): Draw {
+
+  constructor(private _communicator: Communicator) {
+
+  }
+
+  public createDraw(drawData: DrawData, stakeholders?: Stakeholder[]): Draw {
     /** @TODO send creation message */
     return new Draw(stakeholders, drawData);
   }
 
-  public static getDraws(page = 1, perPage = 25): Draw[] {
-    /** @TODO retrieve all draws */
+  public async getDraws(page = 1, perPage = 25): Promise<PaginationResponse<Draw>> {
 
-    return [new Draw()];
+    const list = await this._communicator.getDrawsList(page, perPage)
+    .catch(error => {
+      throw error;
+    });
+
+    return list;
   }
 
-  public static getDraw(uuid: string): Draw {
+  public async getDraw(uuid: string): Promise<Draw> {
     /** @TODO retrieve specific draw */
 
     return new Draw();
   }
 
-  public static watchDraw(draw: Draw): Observable<DrawEvent> {
-    /** @TODO watch draw */
-    return Observable.create((subject: any) => {
-      subject.next({} as DrawEvent);
-    });
+  public async watchDraw(uuid: string, drawInstance: Draw): Promise<Observable<Draw>> {
+    try {
+      // gets the initial static state of the draw
+      drawInstance = await this.getDraw(uuid);
+
+      // start listening to the draw
+      const drawStream = await this._communicator.listen(uuid);
+      
+      return Observable.create((subject: any) => {
+        // event engine to handle updates in the draw
+        drawStream.subscribe((event) => {
+          /** @TODO create event engine */
+          switch (event.type) {
+
+            // new candidate subscribed to the draw
+            case DrawEventType.CANDIDATE_SUBSCRIBED:
+              drawInstance.addStakeholder(new Stakeholder(event.data), true)
+              break;
+            
+            // candidate unsubscribed of the draw
+            case DrawEventType.CANDIDATE_UNSUBSCRIBED:
+              drawInstance.removeStakeholder(new Stakeholder(event.data))
+              break;
+
+            // candidate send a commit
+            case DrawEventType.COMMIT_SENT:
+              break;
+          
+            default:
+              break;
+          }
+
+          // sends the updated draw to the client
+          subject.next(drawInstance);
+        });
+    
+  
+      });
+    } catch (error) {
+      throw error;
+    }
+
   }
 
-  public static subscribeToDraw(draw: Draw, stakeholder: Stakeholder): Observable<DrawEvent> {
+  public subscribeToDraw(draw: Draw, stakeholder: Stakeholder): Observable<DrawEvent> {
     /** @TODO subscribe to draw */
     draw.addStakeholder(stakeholder, true);
     return Observable.create((subject: any) => {
@@ -43,11 +92,11 @@ export class DrawService<D = DrawData> {
     });
   }
 
-  public static sendSignedCommit(commit: RawCommit, privateKey: crypto.KeyObject) {
+  public sendSignedCommit(commit: RawCommit, privateKey: crypto.KeyObject) {
     /** @TODO sign and send commit */
   }
 
-  public static sendSignedReveal(reveal: Reveal, privateKey: crypto.KeyObject) {
+  public sendSignedReveal(reveal: Reveal, privateKey: crypto.KeyObject) {
     /** @TODO sign and send commit */
   }
 }
