@@ -1,4 +1,3 @@
-
 /**
  * Object that represents a commit BEFORE it is encrypted
  */
@@ -19,8 +18,7 @@ export interface RawCommit<M = any> {
   userToken?: string;
 
   /**
-   * Any additional data to assign commit 
+   * Any additional data to assign commit
    */
   metadata?: M;
-  
 }

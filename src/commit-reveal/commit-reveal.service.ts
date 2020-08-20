@@ -1,9 +1,9 @@
-import { RawCommit } from "./interfaces/raw-commit.interface";
-import { HashOptions } from "./enums/hash-options.enum";
-import * as Sha256 from "js-sha256";
-import * as Sha512 from "js-sha512";
+import { RawCommit } from './interfaces/raw-commit.interface';
+import { HashOptions } from './enums/hash-options.enum';
+import * as Sha256 from 'js-sha256';
+import * as Sha512 from 'js-sha512';
 import { Commit } from './interfaces/commit.interface';
-import { Reveal } from "./interfaces/reveal.interface";
+import { Reveal } from './interfaces/reveal.interface';
 
 export const DIGEST_DELIMITER = '_';
 
@@ -11,11 +11,10 @@ export const DIGEST_DELIMITER = '_';
  * Static class to handle commits and reveals
  */
 export class CommitRevealService {
-
   public static createCommit(raw: RawCommit, hashFunction: HashOptions = HashOptions.SHA_256): Commit {
     return {
       digest: CommitRevealService.encrypt(raw.data, raw.nonce, raw.metadata, hashFunction),
-      timestamp: (new Date()).getTime(), 
+      timestamp: new Date().getTime(),
       hashFunction,
       userToken: raw.userToken,
     };
@@ -24,16 +23,23 @@ export class CommitRevealService {
   public static createReveal(reveal: RawCommit): Reveal {
     return {
       ...reveal,
-      timestamp: (new Date()).getTime(), 
-    }
+      timestamp: new Date().getTime(),
+    };
   }
 
   public static validateReveal(reveal: Reveal, commit: Commit) {
-    return CommitRevealService.encrypt(reveal.data, reveal.nonce, reveal.metadata, commit.hashFunction) === commit.digest && reveal.userToken === commit.userToken;
+    return (
+      CommitRevealService.encrypt(reveal.data, reveal.nonce, reveal.metadata, commit.hashFunction) === commit.digest &&
+      reveal.userToken === commit.userToken
+    );
   }
 
   public static checkCommitFormat(commit: Commit) {
-    return !!commit.digest && !!commit.hashFunction && commit.digest.byteLength === CommitRevealService.getHashDigestLength(commit.hashFunction);
+    return (
+      !!commit.digest &&
+      !!commit.hashFunction &&
+      commit.digest.byteLength === CommitRevealService.getHashDigestLength(commit.hashFunction)
+    );
   }
 
   public static getRandomNonce() {
@@ -44,13 +50,13 @@ export class CommitRevealService {
     if (metadata) {
       try {
         metadata = JSON.stringify(metadata);
-      } catch(e) {
+      } catch (e) {
         throw new Error('ERR_STRINGIFY_METADATA: Could not format metadata as string to encrypt');
       }
     } else {
       metadata = '';
     }
-    return CommitRevealService.hash(data + DIGEST_DELIMITER + nonce + DIGEST_DELIMITER + metadata , hashFunction);
+    return CommitRevealService.hash(data + DIGEST_DELIMITER + nonce + DIGEST_DELIMITER + metadata, hashFunction);
   }
 
   private static hash(data: string, hashFunction = HashOptions.SHA_256) {
@@ -63,10 +69,10 @@ export class CommitRevealService {
 
       case HashOptions.SHA_384:
         return Sha512.sha384.create().update(data).arrayBuffer();
-      
+
       case HashOptions.SHA_512:
         return Sha512.sha512.create().update(data).arrayBuffer();
-    
+
       default:
         throw new Error('Hash function not supported.');
     }
@@ -82,10 +88,10 @@ export class CommitRevealService {
 
       case HashOptions.SHA_384:
         return Sha512.sha384.create().update('').arrayBuffer().byteLength;
-      
+
       case HashOptions.SHA_512:
         return Sha512.sha512.create().update('').arrayBuffer().byteLength;
-    
+
       default:
         throw new Error('Hash function not supported.');
     }

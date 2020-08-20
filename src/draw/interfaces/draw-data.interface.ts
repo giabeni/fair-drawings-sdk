@@ -1,4 +1,3 @@
-
 export interface DrawData {
   /**
    * The name of the draw.

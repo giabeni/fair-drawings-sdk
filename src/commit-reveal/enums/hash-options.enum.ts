@@ -1,4 +1,3 @@
-
 export enum HashOptions {
   SHA_256 = 256,
   SHA_224 = 224,

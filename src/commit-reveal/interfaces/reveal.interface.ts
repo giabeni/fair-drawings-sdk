@@ -1,4 +1,4 @@
-import { RawCommit } from "./raw-commit.interface";
+import { RawCommit } from './raw-commit.interface';
 
 /**
  * Object that represents the reveal sent to validate the commit

@@ -1,4 +1,4 @@
-import { HashOptions } from "../enums/hash-options.enum";
+import { HashOptions } from '../enums/hash-options.enum';
 
 /**
  * Object that represents the commit AFTER it is encrypted

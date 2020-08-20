@@ -17,7 +17,7 @@ export class Stakeholder<P = object> {
   eligible?: boolean;
 
   /**
-   * Public key for assimetric encryption 
+   * Public key for assimetric encryption
    */
   publicKey?: crypto.KeyObject;
 
