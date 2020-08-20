@@ -4,6 +4,7 @@ import { Stakeholder } from '../entities/stakeholder.entity';
 import { Commit } from '../../commit-reveal/interfaces/commit.interface';
 import { Reveal } from '../../../lib/commit-reveal/interfaces/reveal.interface';
 import { DrawStatus } from '../enums/draw-status.enum';
+import { Candidate } from '../entities/candidate.entity';
 
 export type DrawEvent =
   | {
@@ -25,6 +26,16 @@ export type DrawEvent =
       timestamp: number;
       type: DrawEventType.STAKEHOLDER_UNSUBSCRIBED;
       data: Stakeholder;
+    }
+  | {
+      timestamp: number;
+      type: DrawEventType.CANDIDATE_SUBSCRIBED;
+      data: Candidate;
+    }
+  | {
+      timestamp: number;
+      type: DrawEventType.CANDIDATE_UNSUBSCRIBED;
+      data: Candidate;
     }
   | {
       timestamp: number;
