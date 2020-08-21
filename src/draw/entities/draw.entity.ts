@@ -3,6 +3,7 @@ import { DrawStatus } from '../enums/draw-status.enum';
 import { DrawData } from '../interfaces/draw-data.interface';
 import { SecurityService } from '../../security/security.service';
 import { Commit } from '../../commit-reveal/interfaces/commit.interface';
+import { Reveal } from '../../../lib/commit-reveal/interfaces/reveal.interface';
 
 export class Draw<D = DrawData> {
   /**
@@ -19,7 +20,7 @@ export class Draw<D = DrawData> {
   /**
    * The number of candidates required to automatically start the draw.
    */
-  public candidatesCount = 4;
+  public readonly spots: number = 4;
 
   /**
    * List of participants that can contribute to the draw.
@@ -31,6 +32,12 @@ export class Draw<D = DrawData> {
    * List of all commits registered in the draw
    */
   public readonly commits: Commit[] = [];
+
+
+  /**
+   * List of all reveals registered in the draw
+   */
+  public readonly reveals: Reveal[] = [];
 
   /**
    * Current phase of draw.
@@ -44,7 +51,8 @@ export class Draw<D = DrawData> {
     return this.stakeholders?.filter((stakeholder) => stakeholder.eligible);
   }
 
-  constructor(stakeholders: Stakeholder[] = [], data?: D) {
+  constructor(spotCount: number = 4, stakeholders: Stakeholder[] = [], data?: D) {
+    this.spots = spotCount;
     this.stakeholders = stakeholders.map((s) => new Stakeholder(s)); // asures all stakeholders are initiated
     this.data = data;
     this.uuid = SecurityService.getRandomString();
