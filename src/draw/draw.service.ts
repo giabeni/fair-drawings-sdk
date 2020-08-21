@@ -10,6 +10,7 @@ import { RawCommit } from '../../lib/commit-reveal/interfaces/raw-commit.interfa
 import { Communicator } from './communicators/communicator.service';
 import { PaginationResponse } from './interfaces/pagination-response.inteface';
 import { DrawEventType } from './enums/draw-event-type.enum';
+import { DrawEventEngine } from './draw-event.engine';
 /**
  * Static class to handle actions for Draws
  */
@@ -21,7 +22,7 @@ export class DrawService<D = DrawData> {
 
   public createDraw(drawData: DrawData, stakeholders?: Stakeholder[]): Draw {
     /** @TODO send creation message */
-    return new Draw(stakeholders, drawData);
+    return new Draw(4, stakeholders, drawData);
   }
 
   public async getDraws(page = 1, perPage = 25): Promise<PaginationResponse<Draw>> {
@@ -51,26 +52,8 @@ export class DrawService<D = DrawData> {
       return Observable.create((subject: any) => {
         // event engine to handle updates in the draw
         drawStream.subscribe((event) => {
-          /** @TODO create event engine */
-          switch (event.type) {
-
-            // new candidate subscribed to the draw
-            case DrawEventType.CANDIDATE_SUBSCRIBED:
-              drawInstance.addStakeholder(new Stakeholder(event.data), true)
-              break;
-            
-            // candidate unsubscribed of the draw
-            case DrawEventType.CANDIDATE_UNSUBSCRIBED:
-              drawInstance.removeStakeholder(new Stakeholder(event.data))
-              break;
-
-            // candidate send a commit
-            case DrawEventType.COMMIT_SENT:
-              break;
           
-            default:
-              break;
-          }
+          DrawEventEngine.handleEvent(event, drawInstance);
 
           // sends the updated draw to the client
           subject.next(drawInstance);
