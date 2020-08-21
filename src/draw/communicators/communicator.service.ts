@@ -1,5 +1,5 @@
-import { PaginationResponse } from "../interfaces/pagination-response.inteface";
-import { Draw } from "../entities/draw.entity";
+import { PaginationResponse } from '../interfaces/pagination-response.inteface';
+import { Draw } from '../entities/draw.entity';
 import { DrawEvent } from '../interfaces/draw-event.interface';
 import { Observable } from 'rxjs';
 
@@ -17,7 +17,7 @@ export abstract class Communicator {
 
   /**
    * Retrieves a subset of all available draws in the current communication.
-   * @param page the subset index of the total draws 
+   * @param page the subset index of the total draws
    * @param perPage the maximum length of the subset
    */
   abstract async getDrawsList(page: number, perPage: number): Promise<PaginationResponse<Draw>>;
@@ -40,5 +40,4 @@ export abstract class Communicator {
    * @param uuid the unique identifier of the draw
    */
   abstract async listen(uuid: string): Promise<Observable<DrawEvent>>;
-
 }

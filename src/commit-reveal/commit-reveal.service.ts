@@ -36,6 +36,7 @@ export class CommitRevealService {
 
   public static checkCommitFormat(commit: Commit) {
     return (
+      !!commit &&
       !!commit.digest &&
       !!commit.hashFunction &&
       commit.digest.byteLength === CommitRevealService.getHashDigestLength(commit.hashFunction)

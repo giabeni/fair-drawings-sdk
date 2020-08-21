@@ -15,10 +15,7 @@ import { DrawEventEngine } from './draw-event.engine';
  * Static class to handle actions for Draws
  */
 export class DrawService<D = DrawData> {
-
-  constructor(private _communicator: Communicator) {
-
-  }
+  constructor(private _communicator: Communicator) {}
 
   public createDraw(drawData: DrawData, stakeholders?: Stakeholder[]): Draw {
     /** @TODO send creation message */
@@ -26,9 +23,7 @@ export class DrawService<D = DrawData> {
   }
 
   public async getDraws(page = 1, perPage = 25): Promise<PaginationResponse<Draw>> {
-
-    const list = await this._communicator.getDrawsList(page, perPage)
-    .catch(error => {
+    const list = await this._communicator.getDrawsList(page, perPage).catch((error) => {
       throw error;
     });
 
@@ -48,23 +43,19 @@ export class DrawService<D = DrawData> {
 
       // start listening to the draw
       const drawStream = await this._communicator.listen(uuid);
-      
+
       return Observable.create((subject: any) => {
         // event engine to handle updates in the draw
         drawStream.subscribe((event) => {
-          
           DrawEventEngine.handleEvent(event, drawInstance);
 
           // sends the updated draw to the client
           subject.next(drawInstance);
         });
-    
-  
       });
     } catch (error) {
       throw error;
     }
-
   }
 
   public subscribeToDraw(draw: Draw, stakeholder: Stakeholder): Observable<DrawEvent> {

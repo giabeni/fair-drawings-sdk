@@ -7,7 +7,22 @@ export class Candidate<P = object> extends Stakeholder<P> {
    * Uniform distribuition - in a draw with candidates [c0, c1], c0.indexes = [0] and c1.indexes = [1]
    * Not-uniform distribuition - in a draw with candidates [c0, c0, c1], c0.indexes = [0, 1] and c1.indexes = [2]
    */
-  public readonly indexes?: number[];
+  protected indexes?: number[];
+
+  /**
+   * Returns all indexes occupied by the candidate in a draw
+   */
+  public getIndexes() {
+    return this.indexes;
+  }
+
+  /**
+   * Sets the positions occupied by the candidate in the draw
+   * @param index
+   */
+  public setIndexes(indexes: number[]) {
+    this.indexes = indexes;
+  }
 
   /**
    * Tests if a candidate occupies a specific position (index) in a draw

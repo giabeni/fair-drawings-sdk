@@ -22,5 +22,5 @@ export interface Commit {
   /**
    * The user authentication token
    */
-  userId?: string;
+  userId: string;
 }

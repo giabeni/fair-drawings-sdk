@@ -5,6 +5,8 @@ import { Commit } from '../../commit-reveal/interfaces/commit.interface';
 import { Reveal } from '../../../lib/commit-reveal/interfaces/reveal.interface';
 import { DrawStatus } from '../enums/draw-status.enum';
 import { Candidate } from '../entities/candidate.entity';
+import { SignedCommit } from '../../commit-reveal/interfaces/signed-commit.interface';
+import { SignedReveal } from '../../commit-reveal/interfaces/signed-reveal.interface';
 
 export type DrawEvent =
   | {
@@ -39,13 +41,13 @@ export type DrawEvent =
     }
   | {
       timestamp: number;
-      type: DrawEventType.COMMIT_SENT;
-      data: Commit;
+      type: DrawEventType.COMMIT_RECEIVED;
+      data: SignedCommit;
     }
   | {
       timestamp: number;
-      type: DrawEventType.REVEAL_SENT;
-      data: Reveal;
+      type: DrawEventType.REVEAL_RECEIVED;
+      data: SignedReveal;
     }
   | {
       timestamp: number;
@@ -79,11 +81,21 @@ export type DrawEvent =
     }
   | {
       timestamp: number;
-      type: DrawEventType.UNAUTHORIZED_COMMIT_SIGNATURE;
+      type: DrawEventType.FORBIDDEN_COMMIT_USER_ID;
       data: Commit;
     }
   | {
       timestamp: number;
-      type: DrawEventType.UNAUTHORIZED_REVEAL_SIGNATURE;
+      type: DrawEventType.FORBIDDEN_REVEAL_USER_ID;
       data: Reveal;
+    }
+  | {
+      timestamp: number;
+      type: DrawEventType.UNAUTHORIZED_COMMIT_SIGNATURE;
+      data: SignedCommit;
+    }
+  | {
+      timestamp: number;
+      type: DrawEventType.UNAUTHORIZED_REVEAL_SIGNATURE;
+      data: SignedReveal;
     };
