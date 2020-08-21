@@ -5,7 +5,7 @@ import { HashOptions } from '../commit-reveal/enums/hash-options.enum';
 const rawCommit: RawCommit = {
   data: '7',
   nonce: '1234567890',
-  userToken: 'giovanni',
+  userId: 'giovanni',
   metadata: {
     draw: 'D1',
   },
@@ -18,7 +18,7 @@ const correctReveal = CommitRevealService.createReveal(rawCommit);
 const incorrectDataReveal = CommitRevealService.createReveal({
   data: '10',
   nonce: '1234567890',
-  userToken: 'giovanni',
+  userId: 'giovanni',
   metadata: {
     draw: 'D1',
   },
@@ -27,7 +27,7 @@ const incorrectDataReveal = CommitRevealService.createReveal({
 const incorrectNonceReveal = CommitRevealService.createReveal({
   data: '7',
   nonce: '0987654321',
-  userToken: 'giovanni',
+  userId: 'giovanni',
   metadata: {
     draw: 'D1',
   },
@@ -36,7 +36,7 @@ const incorrectNonceReveal = CommitRevealService.createReveal({
 const incorrectTokenReveal = CommitRevealService.createReveal({
   data: '7',
   nonce: '1234567890',
-  userToken: 'joao',
+  userId: 'joao',
   metadata: {
     draw: 'D1',
   },
@@ -45,7 +45,7 @@ const incorrectTokenReveal = CommitRevealService.createReveal({
 const incorrectMetadataReveal = CommitRevealService.createReveal({
   data: '7',
   nonce: '1234567890',
-  userToken: 'giovanni',
+  userId: 'giovanni',
   metadata: {
     draw: 'D2',
   },
@@ -60,13 +60,13 @@ test('Create commit', () => {
     JSON.stringify({
       digest: commit.digest,
       hashFunction: 256,
-      userToken: 'giovanni',
+      userId: 'giovanni',
     }),
   ).toBe(
     JSON.stringify({
       digest: '6dedee6752ad46b9fe70fddb7bb8600578455d32febd81e3996780029aad7b33',
       hashFunction: 256,
-      userToken: 'giovanni',
+      userId: 'giovanni',
     }),
   );
 });

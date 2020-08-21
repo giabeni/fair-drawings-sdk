@@ -16,7 +16,7 @@ export class CommitRevealService {
       digest: CommitRevealService.encrypt(raw.data, raw.nonce, raw.metadata, hashFunction),
       timestamp: new Date().getTime(),
       hashFunction,
-      userToken: raw.userToken,
+      userId: raw.userId,
     };
   }
 
@@ -30,7 +30,7 @@ export class CommitRevealService {
   public static validateReveal(reveal: Reveal, commit: Commit) {
     return (
       CommitRevealService.encrypt(reveal.data, reveal.nonce, reveal.metadata, commit.hashFunction) === commit.digest &&
-      reveal.userToken === commit.userToken
+      reveal.userId === commit.userId
     );
   }
 

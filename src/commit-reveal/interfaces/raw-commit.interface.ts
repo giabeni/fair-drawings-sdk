@@ -15,7 +15,7 @@ export interface RawCommit<M = any> {
   /**
    * User authentication token
    */
-  userToken?: string;
+  userId?: string;
 
   /**
    * Any additional data to assign commit
