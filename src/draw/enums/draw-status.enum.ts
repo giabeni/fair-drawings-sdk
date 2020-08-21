@@ -12,7 +12,7 @@ export enum DrawStatus {
 
   /**
    * Drawing procedure is in the reval phase
-   * (Stakeholders must send their reveal).
+   * (Candidates must send their reveal).
    */
   REVEAL = 2,
 
