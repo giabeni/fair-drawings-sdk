@@ -6,6 +6,7 @@ import { Candidate } from './entities/candidate.entity';
 import { SignedCommit } from '../commit-reveal/interfaces/signed-commit.interface';
 import { CommitRevealService } from '../commit-reveal/commit-reveal.service';
 import { SecurityService } from '../security/security.service';
+import { SignedReveal } from '../commit-reveal/interfaces/signed-reveal.interface';
 
 /**
  * Class to handle events in a draw.
@@ -30,12 +31,19 @@ export class DrawEventEngine {
         this.onCommitReceived(event.data, draw);
         break;
 
+      // candidate send a reveal
+      case DrawEventType.REVEAL_RECEIVED:
+        this.onRevealReceived(event.data, draw);
+        break;
+
       default:
         break;
     }
 
-    // updates the status in the instace of the draw 
-    draw.updateStatus();
+    // updates the status in the instace of the draw
+    if (draw.updateStatus()) {
+      /** @TODO post STATUS_CHANGED DrawEvent */
+    }
   }
 
   private static onCandidateSubscribed(candidate: Candidate, draw: Draw) {
@@ -49,6 +57,14 @@ export class DrawEventEngine {
   private static onCommitReceived(signedCommit: SignedCommit, draw: Draw) {
     try {
       draw.registerCommit(signedCommit);
+    } catch (commitError) {
+      /** @TODO post error to stream */
+    }
+  }
+
+  private static onRevealReceived(signedReveal: SignedReveal, draw: Draw) {
+    try {
+      draw.registerReveal(signedReveal);
     } catch (commitError) {
       /** @TODO post error to stream */
     }
