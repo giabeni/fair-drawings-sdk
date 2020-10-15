@@ -1,6 +1,4 @@
 import { Stakeholder } from '../entities/stakeholder.entity';
-import { Commit } from '../../commit-reveal/interfaces/commit.interface';
-import { Reveal } from '../../../lib/commit-reveal/interfaces/reveal.interface';
 import { SignedCommit } from '../../commit-reveal/interfaces/signed-commit.interface';
 import { SignedReveal } from '../../commit-reveal/interfaces/signed-reveal.interface';
 

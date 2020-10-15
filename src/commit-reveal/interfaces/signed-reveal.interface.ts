@@ -1,4 +1,4 @@
-import { Reveal } from '../../../lib/commit-reveal/interfaces/reveal.interface';
+import { Reveal } from '../../commit-reveal/interfaces/reveal.interface';
 
 /**
  * Interface that encapsule a commit and a signature

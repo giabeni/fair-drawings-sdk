@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { Commit } from '../commit-reveal/interfaces/commit.interface';
 import * as crypto from 'crypto';
 import { Reveal } from '../commit-reveal/interfaces/reveal.interface';
-import { RawCommit } from '../../lib/commit-reveal/interfaces/raw-commit.interface';
+import { RawCommit } from '../commit-reveal/interfaces/raw-commit.interface';
 import { Communicator } from './communicators/communicator.service';
 import { PaginationResponse } from './interfaces/pagination-response.inteface';
 import { DrawEventType } from './enums/draw-event-type.enum';

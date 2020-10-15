@@ -2,11 +2,11 @@ import { DrawEventType } from '../enums/draw-event-type.enum';
 import { Draw } from '../entities/draw.entity';
 import { Stakeholder } from '../entities/stakeholder.entity';
 import { Commit } from '../../commit-reveal/interfaces/commit.interface';
-import { Reveal } from '../../../lib/commit-reveal/interfaces/reveal.interface';
 import { DrawStatus } from '../enums/draw-status.enum';
 import { Candidate } from '../entities/candidate.entity';
 import { SignedCommit } from '../../commit-reveal/interfaces/signed-commit.interface';
 import { SignedReveal } from '../../commit-reveal/interfaces/signed-reveal.interface';
+import { Reveal } from '../../commit-reveal/interfaces/reveal.interface';
 
 export type DrawEvent =
   | {
@@ -82,12 +82,12 @@ export type DrawEvent =
   | {
       timestamp: number;
       type: DrawEventType.FORBIDDEN_COMMIT_USER_ID;
-      data: Commit;
+      data: SignedCommit;
     }
   | {
       timestamp: number;
       type: DrawEventType.FORBIDDEN_REVEAL_USER_ID;
-      data: Reveal;
+      data: SignedReveal;
     }
   | {
       timestamp: number;
