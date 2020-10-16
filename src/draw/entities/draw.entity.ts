@@ -7,7 +7,7 @@ import { Reveal } from '../../commit-reveal/interfaces/reveal.interface';
 import { Candidate } from './candidate.entity';
 import { SignedCommit } from '../../commit-reveal/interfaces/signed-commit.interface';
 import { CommitRevealService } from '../../commit-reveal/commit-reveal.service';
-import { DrawEvent } from '../interfaces/draw-event.interface';
+import { v4 as uuidv4 } from 'uuid';
 import { DrawEventType } from '../enums/draw-event-type.enum';
 import { SignedReveal } from '../../commit-reveal/interfaces/signed-reveal.interface';
 
@@ -89,7 +89,7 @@ export class Draw<D = DrawData> {
     this._status = DrawStatus.PENDING;
     this.stakeholders = stakeholders.map((s) => new Stakeholder(s)); // asures all stakeholders are initiated
     this.data = data;
-    this.uuid = SecurityService.getRandomString();
+    this.uuid = uuidv4();
   }
 
   /**
