@@ -2,18 +2,25 @@ import { PaginationResponse } from '../interfaces/pagination-response.inteface';
 import { Draw } from '../entities/draw.entity';
 import { DrawEvent } from '../interfaces/draw-event.interface';
 import { Observable } from 'rxjs';
+import { DrawData } from '../interfaces/draw-data.interface';
+import { Stakeholder } from '../entities/stakeholder.entity';
 
 /**
  * Abstract class to handle sending and recieving of DrawEvents through all stakeholders.
  * Its children can implement the messages exchange using different technologies, provided that the methods are correclty strucutred.
  */
-export abstract class Communicator {
+export abstract class Communicator<P = any, C = any> {
   /**
    * Starts the communications: handshakes, connectivity tests, peer recogintion...
    * @param params any settings used to start de communication
    * @returns C as connection object, containing any relevant information about the communication
    */
-  abstract async openConnection<P = any, C = any>(params?: P): Promise<C>;
+  abstract async openConnection(params?: P): Promise<C>;
+
+  /**
+   * Finishes the open connection
+   */
+  abstract async closeConnection(): Promise<boolean>;
 
   /**
    * Retrieves a subset of all available draws in the current communication.
@@ -21,6 +28,12 @@ export abstract class Communicator {
    * @param perPage the maximum length of the subset
    */
   abstract async getDrawsList(page: number, perPage: number): Promise<PaginationResponse<Draw>>;
+
+  /**
+   * Inserts a new draw instace in the repository and alert all subscribers in the connection.
+   * @param draw the draw instance
+   */
+  abstract async createDraw(spotCount: number, stakeholders: Stakeholder[], drawData: DrawData): Promise<Draw>;
 
   /**
    * Alerts all active users in the connection.
@@ -39,5 +52,7 @@ export abstract class Communicator {
    * Receives the updates that happens in a specific draw.
    * @param uuid the unique identifier of the draw
    */
-  abstract async listen(uuid: string): Promise<Observable<DrawEvent>>;
+  abstract async listen(uuid: string): Promise<Observable<DrawEvent | undefined>>;
+
+  constructor() {}
 }
