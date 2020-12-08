@@ -2,8 +2,6 @@ import { PaginationResponse } from '../interfaces/pagination-response.inteface';
 import { Draw } from '../entities/draw.entity';
 import { DrawEvent } from '../interfaces/draw-event.interface';
 import { Observable } from 'rxjs';
-import { DrawData } from '../interfaces/draw-data.interface';
-import { Stakeholder } from '../entities/stakeholder.entity';
 
 /**
  * Abstract class to handle sending and recieving of DrawEvents through all stakeholders.
@@ -30,10 +28,36 @@ export abstract class Communicator<P = any, C = any> {
   abstract async getDrawsList(page: number, perPage: number): Promise<PaginationResponse<Draw>>;
 
   /**
+   * Subscribes to all available draws in the current communication.
+   * @param page the subset index of the total draws
+   * @param perPage the maximum length of the subset
+   */
+  abstract async subscribeToDrawsList(): Promise<Observable<Draw[]>>;
+
+  /**
    * Inserts a new draw instace in the repository and alert all subscribers in the connection.
    * @param draw the draw instance
    */
-  abstract async createDraw(spotCount: number, stakeholders: Stakeholder[], drawData: DrawData): Promise<Draw>;
+  abstract async createDraw(draw: Draw): Promise<DrawEvent>;
+
+  /**
+   * Returns the current public data of the draw with this uuid.
+   * @param uuid the unique id of the draw
+   */
+  abstract async getDraw(uuid: string): Promise<Draw>;
+
+  /**
+   * Adds candidate to the draw room, and informs all others subscrivers
+   * @param uuid unique id of the draw.
+   */
+  abstract async joinDraw(uuid: string): Promise<true>;
+
+  /**
+   * Remove candidate from the draw room, and informs all others subscrivers
+   * @param uuid unique id of the draw.
+   * @param candidate the candidate object to remove
+   */
+  abstract async leaveDraw(draw: Draw): Promise<true>;
 
   /**
    * Alerts all active users in the connection.
@@ -53,6 +77,4 @@ export abstract class Communicator<P = any, C = any> {
    * @param uuid the unique identifier of the draw
    */
   abstract async listen(uuid: string): Promise<Observable<DrawEvent | undefined>>;
-
-  constructor() {}
 }

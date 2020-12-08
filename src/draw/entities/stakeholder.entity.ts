@@ -1,8 +1,8 @@
 import * as crypto from 'crypto';
 
-export class Stakeholder<P = object> {
+export class Stakeholder<P = any> {
   /**
-   * Identifier of the party in the draw.
+   * External identifier of the party in the draw.
    */
   id?: string;
 
@@ -19,7 +19,7 @@ export class Stakeholder<P = object> {
   /**
    * Public key for assimetric encryption
    */
-  publicKey?: crypto.KeyObject;
+  publicKey?: JsonWebKey;
 
   constructor(stakeholder?: Stakeholder) {
     if (stakeholder) {

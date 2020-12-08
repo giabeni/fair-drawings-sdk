@@ -7,95 +7,91 @@ import { Candidate } from '../entities/candidate.entity';
 import { SignedCommit } from '../../commit-reveal/interfaces/signed-commit.interface';
 import { SignedReveal } from '../../commit-reveal/interfaces/signed-reveal.interface';
 import { Reveal } from '../../commit-reveal/interfaces/reveal.interface';
+import { DrawAck } from './draw-ack.interface';
 
-export type DrawEvent =
+export type DrawEvent = {
+  drawUuid?: string;
+  timestamp?: number;
+  from?: Stakeholder;
+  eventId?: string;
+} & (
   | {
-      timestamp: number;
       type: DrawEventType.DRAW_CREATED;
       data: Draw;
     }
   | {
-      timestamp: number;
       type: DrawEventType.DRAW_DELETED;
       data: Draw;
     }
   | {
-      timestamp: number;
       type: DrawEventType.STAKEHOLDER_SUBSCRIBED;
       data: Stakeholder;
     }
   | {
-      timestamp: number;
       type: DrawEventType.STAKEHOLDER_UNSUBSCRIBED;
       data: Stakeholder;
     }
   | {
-      timestamp: number;
       type: DrawEventType.CANDIDATE_SUBSCRIBED;
       data: Candidate;
     }
   | {
-      timestamp: number;
-      type: DrawEventType.CANDIDATE_UNSUBSCRIBED;
-      data: Candidate;
-    }
-  | {
-      timestamp: number;
       type: DrawEventType.COMMIT_RECEIVED;
       data: SignedCommit;
     }
   | {
-      timestamp: number;
       type: DrawEventType.REVEAL_RECEIVED;
       data: SignedReveal;
     }
   | {
-      timestamp: number;
-      type: DrawEventType.ALL_COMMITS_RECEIVED;
-      data: Commit[];
-    }
-  | {
-      timestamp: number;
-      type: DrawEventType.ALL_REVEALS_RECEIVED;
-      data: Reveal[];
-    }
-  | {
-      timestamp: number;
       type: DrawEventType.STATUS_CHANGED;
       data: DrawStatus;
     }
   | {
-      timestamp: number;
+      type: DrawEventType.ACK;
+      data: DrawAck;
+    }
+  | DrawErrorEvent
+);
+
+export type DrawErrorEvent =
+  | {
+      type: DrawEventType.CANDIDATE_UNSUBSCRIBED;
+      data: Candidate;
+    }
+  | {
       type: DrawEventType.WRONG_COMMIT_FORMAT;
-      data: Commit;
+      data: SignedCommit;
     }
   | {
-      timestamp: number;
       type: DrawEventType.WRONG_REVEAL_FORMAT;
-      data: Reveal;
+      data: SignedCommit;
     }
   | {
-      timestamp: number;
+      type: DrawEventType.DUPLICATE_COMMIT;
+      data: SignedCommit;
+    }
+  | {
+      type: DrawEventType.DUPLICATE_REVEAL;
+      data: SignedCommit;
+    }
+  | {
       type: DrawEventType.INVALID_REVEAL_MASK;
-      data: Reveal;
+      data: SignedCommit;
     }
   | {
-      timestamp: number;
       type: DrawEventType.FORBIDDEN_COMMIT_USER_ID;
       data: SignedCommit;
     }
   | {
-      timestamp: number;
       type: DrawEventType.FORBIDDEN_REVEAL_USER_ID;
       data: SignedReveal;
     }
   | {
-      timestamp: number;
       type: DrawEventType.UNAUTHORIZED_COMMIT_SIGNATURE;
       data: SignedCommit;
     }
   | {
-      timestamp: number;
       type: DrawEventType.UNAUTHORIZED_REVEAL_SIGNATURE;
       data: SignedReveal;
     };

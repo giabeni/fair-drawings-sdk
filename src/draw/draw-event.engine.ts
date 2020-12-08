@@ -1,12 +1,11 @@
-import { DrawEvent } from './interfaces/draw-event.interface';
+import { DrawErrorEvent, DrawEvent } from './interfaces/draw-event.interface';
 import { Draw } from './entities/draw.entity';
 import { DrawEventType } from './enums/draw-event-type.enum';
-import { Stakeholder } from './entities/stakeholder.entity';
 import { Candidate } from './entities/candidate.entity';
 import { SignedCommit } from '../commit-reveal/interfaces/signed-commit.interface';
-import { CommitRevealService } from '../commit-reveal/commit-reveal.service';
-import { SecurityService } from '../security/security.service';
 import { SignedReveal } from '../commit-reveal/interfaces/signed-reveal.interface';
+import { DrawService } from './draw.service';
+import { DrawAckType } from './enums/draw-ack-type.enum';
 
 /**
  * Class to handle events in a draw.
@@ -14,59 +13,126 @@ import { SignedReveal } from '../commit-reveal/interfaces/signed-reveal.interfac
  * @param draw the draw instance to update
  */
 export class DrawEventEngine {
-  public static handleEvent(event: DrawEvent, draw: Draw) {
+  public static async handleEvent(event: DrawEvent, draw: Draw) {
     switch (event.type) {
       // new candidate subscribed to the draw
       case DrawEventType.CANDIDATE_SUBSCRIBED:
-        this.onCandidateSubscribed(event.data, draw);
+        await this.onCandidateSubscribed(event.data, draw);
         break;
 
-      // candidate unsubscribed of the draw
+      // candidate left draw
       case DrawEventType.CANDIDATE_UNSUBSCRIBED:
-        this.onCandidateUnsubscribed(event.data, draw);
+        draw.setError(event);
+        await this.onErrorReceived(event.data, draw);
         break;
 
-      // candidate send a commit
+      // another candidate sent a commit
       case DrawEventType.COMMIT_RECEIVED:
-        this.onCommitReceived(event.data, draw);
+        await this.onCommitReceived(event.data, draw);
         break;
 
-      // candidate send a reveal
+      // another candidate sent a reveal
       case DrawEventType.REVEAL_RECEIVED:
-        this.onRevealReceived(event.data, draw);
+        await this.onRevealReceived(event.data, draw);
+        break;
+
+      // received ack from other candidate
+      case DrawEventType.ACK:
+        if (!event.from || !event.from.id) {
+          throw new Error('DRAW_EVENT_ENGINE/HANDLE/ACK/UNKNOW_SENDER');
+        }
+        try {
+          // delays the ack registering to avoid the validation to proceed before local changes have been computed
+          setTimeout(async () => {
+            draw.setAck(event.data, event.from!.id!);
+            if (await draw.updateStatus()) {
+              await DrawService.updateStatus(draw, draw.status!);
+            }
+          }, 500);
+        } catch (err) {
+          throw err;
+        }
+        break;
+
+      case DrawEventType.WRONG_COMMIT_FORMAT:
+      case DrawEventType.WRONG_REVEAL_FORMAT:
+      // case DrawEventType.DUPLICATE_COMMIT:
+      // case DrawEventType.DUPLICATE_REVEAL:
+      case DrawEventType.INVALID_REVEAL_MASK:
+      // case DrawEventType.FORBIDDEN_COMMIT_USER_ID:
+      // case DrawEventType.FORBIDDEN_REVEAL_USER_ID:
+      case DrawEventType.UNAUTHORIZED_COMMIT_SIGNATURE:
+      case DrawEventType.UNAUTHORIZED_REVEAL_SIGNATURE:
+        await this.onErrorReceived(event.data, draw);
         break;
 
       default:
         break;
     }
-
-    // updates the status in the instace of the draw
-    if (draw.updateStatus()) {
-      /** @TODO post STATUS_CHANGED DrawEvent */
-    }
   }
 
-  private static onCandidateSubscribed(candidate: Candidate, draw: Draw) {
+  private static async onCandidateSubscribed(candidate: Candidate, draw: Draw) {
     draw.addStakeholder(new Candidate(candidate), true);
+
+    if (draw.candidatesCount === draw.spots) {
+      await DrawService.sendAck(draw, DrawAckType.ALL_JOINED);
+    }
   }
 
   private static onCandidateUnsubscribed(candidate: Candidate, draw: Draw) {
     draw.removeStakeholder(new Candidate(candidate));
   }
 
-  private static onCommitReceived(signedCommit: SignedCommit, draw: Draw) {
+  private static async onCommitReceived(signedCommit: SignedCommit, draw: Draw) {
     try {
-      draw.registerCommit(signedCommit);
+      const commitValidation = await DrawService.checkCommit(draw, signedCommit);
+
+      if (commitValidation === true) {
+        await draw.registerCommit(signedCommit, true);
+      } else {
+        const errorEvent: DrawErrorEvent = {
+          type: commitValidation,
+          data: signedCommit as any,
+        };
+        draw.setError(errorEvent);
+        await draw.registerCommit(signedCommit, false);
+        await DrawService.sendError(draw, errorEvent);
+      }
+
+      if (draw.commits.length === draw.spots && draw.commits.every((commit) => commit.valid)) {
+        await DrawService.sendAck(draw, DrawAckType.ALL_COMMITED);
+      }
     } catch (commitError) {
-      /** @TODO post error to stream */
+      throw commitError;
     }
   }
 
-  private static onRevealReceived(signedReveal: SignedReveal, draw: Draw) {
+  private static async onRevealReceived(signedReveal: SignedReveal, draw: Draw) {
     try {
-      draw.registerReveal(signedReveal);
-    } catch (commitError) {
-      /** @TODO post error to stream */
+      const revealValidation = await DrawService.checkReveal(draw, signedReveal);
+      if (revealValidation === true) {
+        await draw.registerReveal(signedReveal, true);
+      } else {
+        const errorEvent: DrawErrorEvent = {
+          type: revealValidation,
+          data: signedReveal as any,
+        };
+        draw.setError(errorEvent);
+        await draw.registerReveal(signedReveal, false);
+        await DrawService.sendError(draw, errorEvent);
+      }
+
+      if (draw.reveals.length === draw.spots && draw.reveals.every((reveal) => reveal.valid)) {
+        await DrawService.sendAck(draw, DrawAckType.ALL_REVEALED);
+      }
+    } catch (revealError) {
+      throw revealError;
+    }
+  }
+
+  private static async onErrorReceived(data: SignedCommit | SignedReveal | Candidate, draw: Draw) {
+    if (await draw.updateStatus()) {
+      await DrawService.updateStatus(draw, draw.status!);
     }
   }
 }

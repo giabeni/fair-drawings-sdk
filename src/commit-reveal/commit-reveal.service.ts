@@ -34,12 +34,16 @@ export class CommitRevealService {
     );
   }
 
+  public static getDigestFromReveal(reveal: Reveal, commit: Commit) {
+    return CommitRevealService.encrypt(reveal.data, reveal.nonce, reveal.metadata, commit.hashFunction);
+  }
+
   public static checkCommitFormat(commit: Commit) {
     return (
       !!commit &&
       !!commit.digest &&
       !!commit.hashFunction &&
-      commit.digest.byteLength === CommitRevealService.getHashDigestLength(commit.hashFunction)
+      commit.digest.length === CommitRevealService.getHashDigestLength(commit.hashFunction)
     );
   }
 
@@ -52,7 +56,7 @@ export class CommitRevealService {
       try {
         metadata = JSON.stringify(metadata);
       } catch (e) {
-        throw new Error('ERR_STRINGIFY_METADATA: Could not format metadata as string to encrypt');
+        throw new Error(e);
       }
     } else {
       metadata = '';
@@ -63,38 +67,38 @@ export class CommitRevealService {
   private static hash(data: string, hashFunction = HashOptions.SHA_256) {
     switch (hashFunction) {
       case HashOptions.SHA_256:
-        return Sha256.sha256.create().update(data).arrayBuffer();
+        return Sha256.sha256.create().update(data).toString();
 
       case HashOptions.SHA_224:
-        return Sha256.sha224.create().update(data).arrayBuffer();
+        return Sha256.sha224.create().update(data).toString();
 
       case HashOptions.SHA_384:
-        return Sha512.sha384.create().update(data).arrayBuffer();
+        return Sha512.sha384.create().update(data).toString();
 
       case HashOptions.SHA_512:
-        return Sha512.sha512.create().update(data).arrayBuffer();
+        return Sha512.sha512.create().update(data).toString();
 
       default:
-        throw new Error('Hash function not supported.');
+        throw new Error('COMMIT_REVEAL_SERVICE/HASH/FUNCTION_NOT_SUPORTED');
     }
   }
 
   private static getHashDigestLength(hashFunction = HashOptions.SHA_256) {
     switch (hashFunction) {
       case HashOptions.SHA_256:
-        return Sha256.sha256.create().update('').arrayBuffer().byteLength;
+        return Sha256.sha256.create().update('').toString().length;
 
       case HashOptions.SHA_224:
-        return Sha256.sha224.create().update('').arrayBuffer().byteLength;
+        return Sha256.sha224.create().update('').toString().length;
 
       case HashOptions.SHA_384:
-        return Sha512.sha384.create().update('').arrayBuffer().byteLength;
+        return Sha512.sha384.create().update('').toString().length;
 
       case HashOptions.SHA_512:
-        return Sha512.sha512.create().update('').arrayBuffer().byteLength;
+        return Sha512.sha512.create().update('').toString().length;
 
       default:
-        throw new Error('Hash function not supported.');
+        throw new Error('COMMIT_REVEAL_SERVICE/HASH_DIGEST_LENGTH/FUNCTION_NOT_SUPORTED');
     }
   }
 }

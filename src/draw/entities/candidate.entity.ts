@@ -1,6 +1,6 @@
 import { Stakeholder } from './stakeholder.entity';
 
-export class Candidate<P = object> extends Stakeholder<P> {
+export class Candidate<P = any> extends Stakeholder<P> {
   /**
    * List of all positions of the candidates set that are ocuppied by the candidate.
    * Examples:
@@ -18,7 +18,7 @@ export class Candidate<P = object> extends Stakeholder<P> {
 
   /**
    * Sets the positions occupied by the candidate in the draw
-   * @param index
+   * @param indexes which positions the candidates represents
    */
   public setIndexes(indexes: number[]) {
     this.indexes = indexes;
